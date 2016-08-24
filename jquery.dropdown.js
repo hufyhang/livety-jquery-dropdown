@@ -7,6 +7,16 @@
  *
 */
 if (jQuery) (function ($) {
+    var isLeftMousedown = function(clickType, evt) {
+      if (clickType !== 'mousedown') {
+        return true;
+      }
+      if (evt.button === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    };
     var option = {
         "hover_boolen":null
     }
@@ -79,7 +89,7 @@ if (jQuery) (function ($) {
         var targetGroup = event ? $(event.target).parents().addBack() : null;
 
         // Are we clicking anywhere in a dropdown?
-        if (targetGroup && targetGroup.is('.dropdown')) {
+        if (targetGroup && (targetGroup.is('.dropdown') || targetGroup.is('.dropdown-button') )) {
             // Is it a dropdown menu?
             if (targetGroup.is('.dropdown-menu')) {
                 // Did we click on an option? If so close it.
@@ -137,11 +147,21 @@ if (jQuery) (function ($) {
         }
     }
 
-    $(document).on('click.dropdown', '[data-dropdown]', show);
+    var isTouch = ('ontouchstart' in window);
+
+    var eventType = 'click';
+    if (!isTouch) {
+      eventType = 'mousedown';
+    }
+
+    $(document).on(eventType + '.dropdown', '[data-dropdown]', function (evt) {
+      if (isLeftMousedown(eventType, evt)) {
+        show.call(this, evt);
+      }
+    });
     $(document).on('click.dropdown', hide);
     //by gyy
     // var isTouchDevice = (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch);
-    var isTouch = ('ontouchstart' in window);
     if(isTouch){
         $(document).on('touchstart.dropdown', '.dropdown .needs-highlight', function () {
           $(this).addClass('dropdown-active-highlight');
